@@ -4,16 +4,16 @@
 
 package akka.stream.alpakka.kinesis.impl
 
-import java.util.concurrent.Semaphore
-
 import akka.annotation.InternalApi
 import akka.stream.alpakka.kinesis.KinesisSchedulerErrors.SchedulerUnexpectedShutdown
 import akka.stream.alpakka.kinesis.{CommittableRecord, KinesisSchedulerSourceSettings}
 import akka.stream.stage._
 import akka.stream.{ActorAttributes, Attributes, Outlet, SourceShape}
+import software.amazon.kinesis.common.StreamIdentifier
 import software.amazon.kinesis.coordinator.Scheduler
 import software.amazon.kinesis.processor.{ShardRecordProcessor, ShardRecordProcessorFactory}
 
+import java.util.concurrent.Semaphore
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, Future, Promise}
@@ -71,7 +71,9 @@ private[kinesis] class KinesisSchedulerSourceStage(
       implicit val ec: ExecutionContext = executionContext(attributes)
       val scheduler = schedulerBuilder(new ShardRecordProcessorFactory {
         override def shardRecordProcessor(): ShardRecordProcessor =
-          new ShardProcessor(newRecordCallback)
+          throw new UnsupportedOperationException("Needs streamIdentifier")
+        override def shardRecordProcessor(streamIdentifier: StreamIdentifier): ShardRecordProcessor =
+          new ShardProcessor(streamIdentifier, newRecordCallback)
       })
       schedulerOpt = Some(scheduler)
       Future(scheduler.run()).onComplete(result => callback.invoke(SchedulerShutdown(result)))

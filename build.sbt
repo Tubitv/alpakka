@@ -490,10 +490,7 @@ def alpakkaProject(projectId: String, moduleName: String, additionalSettings: sb
       },
       AutomaticModuleName.settings(s"akka.stream.alpakka.$moduleName"),
       scalacOptions += "-Wconf:cat=deprecation&msg=.*JavaConverters.*:s",
-      mimaPreviousArtifacts := Set(
-          organization.value %% name.value % previousStableVersion.value
-            .getOrElse(throw new Error("Unable to determine previous version"))
-        ),
+      mimaPreviousArtifacts := Set.empty,  // We turn off MIMA for the TubiTV fork
       mimaBinaryIssueFilters ++= Seq(
           ProblemFilters.exclude[Problem]("*.impl.*"),
           // generated code

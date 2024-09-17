@@ -5,10 +5,10 @@
 package akka.stream.alpakka.kinesis.impl
 
 import java.util.concurrent.Semaphore
-
 import akka.annotation.InternalApi
 import akka.stream.alpakka.kinesis.CommittableRecord
 import akka.stream.alpakka.kinesis.CommittableRecord.{BatchData, ShardProcessorData}
+import software.amazon.kinesis.common.StreamIdentifier
 import software.amazon.kinesis.lifecycle.ShutdownReason
 import software.amazon.kinesis.lifecycle.events._
 import software.amazon.kinesis.processor.{RecordProcessorCheckpointer, ShardRecordProcessor}
@@ -18,6 +18,7 @@ import scala.collection.JavaConverters._
 
 @InternalApi
 private[kinesis] class ShardProcessor(
+    streamIdentifier: StreamIdentifier,
     processRecord: CommittableRecord => Unit
 ) extends ShardRecordProcessor {
 
@@ -51,10 +52,11 @@ private[kinesis] class ShardProcessor(
   override def processRecords(processRecordsInput: ProcessRecordsInput): Unit = {
     checkpointer = processRecordsInput.checkpointer()
 
-    val batchData = new BatchData(processRecordsInput.cacheEntryTime,
-                                  processRecordsInput.cacheExitTime,
-                                  processRecordsInput.isAtShardEnd,
-                                  processRecordsInput.millisBehindLatest)
+    val batchData = new BatchData(streamIdentifier,
+                                             processRecordsInput.cacheEntryTime,
+                                             processRecordsInput.cacheExitTime,
+                                             processRecordsInput.isAtShardEnd,
+                                             processRecordsInput.millisBehindLatest)
 
     if (batchData.isAtShardEnd) {
       lastRecordSemaphore.acquire()

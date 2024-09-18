@@ -496,7 +496,9 @@ def alpakkaProject(projectId: String, moduleName: String, additionalSettings: sb
           // generated code
           ProblemFilters.exclude[Problem]("com.google.*")
         ),
-      Test / parallelExecution := false
+      publish := codeArtifactPublish.value,
+      Test / parallelExecution := false,
+      dynverSonatypeSnapshots := false,
     )
     .settings(additionalSettings: _*)
     .dependsOn(testkit % Test)

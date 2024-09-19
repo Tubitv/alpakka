@@ -4,7 +4,6 @@
 
 package akka.stream.alpakka.kinesis
 
-import java.time.Instant
 import akka.annotation.InternalApi
 import akka.stream.alpakka.kinesis.CommittableRecord.{BatchData, ShardProcessorData}
 import software.amazon.kinesis.common.StreamIdentifier
@@ -12,6 +11,8 @@ import software.amazon.kinesis.exceptions.ShutdownException
 import software.amazon.kinesis.lifecycle.ShutdownReason
 import software.amazon.kinesis.retrieval.KinesisClientRecord
 import software.amazon.kinesis.retrieval.kpl.ExtendedSequenceNumber
+
+import java.time.Instant
 
 abstract class CommittableRecord @InternalApi private[kinesis] (
     val record: KinesisClientRecord,
@@ -81,6 +82,7 @@ object CommittableRecord {
    * See [[akka.stream.alpakka.kinesis.impl.ShardProcessor]]
    */
   final class ShardProcessorData(
+      val streamIdentifier: StreamIdentifier,
       val shardId: String,
       val recordProcessorStartingSequenceNumber: ExtendedSequenceNumber,
       val pendingCheckpointSequenceNumber: ExtendedSequenceNumber
@@ -90,7 +92,6 @@ object CommittableRecord {
    * See [[akka.stream.alpakka.kinesis.impl.ShardProcessor]]
    */
   final class BatchData(
-      val streamIdentifier: StreamIdentifier,
       val cacheEntryTime: Instant,
       val cacheExitTime: Instant,
       val isAtShardEnd: Boolean,

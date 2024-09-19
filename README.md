@@ -1,3 +1,22 @@
+Tubi-related customizations
+===========================
+
+This repo is a fork of [`akka/alpakka`](https://github.com/akka/alpakka). The [`main`](https://github.com/akka/alpakka/tree/main) branch was forked as [`upstream-main`](https://github.com/Tubitv/alpakka/tree/upstream-main).
+
+Rules for development:
+
+* Always develop against the [`tubi-main`](https://github.com/Tubitv/alpakka/tree/tubi-main) branch, which is the default branch. All PRs are opened against this branch by default.
+* To release a version, just tag the version you want to release as `vX.Y.Z-tubi-A`, where `X.Y.Z` is the alpakka version and `A` is the Tubi release version. Publish with `codeArtifactPublish`.
+* To use these versions as dependencies, use `"com.tubitv" %% "akka-stream-alpakka-kinesis" % "X.Y.Z-tubi-A"` as a dependency instead of the one from Akka.
+
+Contributing back to upstream:
+
+* If you want to contribute back to the Akka repository, cherry-pick your commit to a branch based on [`upstream-main`](https://github.com/Tubitv/alpakka/tree/upstream-main) and open a PR against [`akka/alpakka/main`](https://github.com/akka/alpakka/tree/main).
+
+**NEVER MERGE [`tubi-main`](https://github.com/Tubitv/alpakka/tree/tubi-main) to [`upstream-main`](https://github.com/Tubitv/alpakka/tree/upstream-main) (the other direction is ok)**.
+
+---
+
 Alpakka
 =======
 

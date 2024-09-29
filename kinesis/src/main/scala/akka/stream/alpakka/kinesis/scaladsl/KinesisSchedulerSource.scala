@@ -47,10 +47,11 @@ object KinesisSchedulerSource {
       .groupBy(MAX_KINESIS_SHARDS, _.processorData.shardId)
 
   def checkpointRecordsFlow(
-      settings: KinesisSchedulerCheckpointSettings
+      settings: KinesisSchedulerCheckpointSettings,
+      maxShardCount: Int = MAX_KINESIS_SHARDS,
   ): Flow[CommittableRecord, KinesisClientRecord, NotUsed] =
     Flow[CommittableRecord]
-      .groupBy(MAX_KINESIS_SHARDS, _.processorData.shardId)
+      .groupBy(maxShardCount, record => (record.processorData.streamIdentifier, record.processorData.shardId))
       .groupedWithin(settings.maxBatchSize, settings.maxBatchWait)
       .via(checkpointRecordBatch)
       .mergeSubstreams
@@ -66,9 +67,10 @@ object KinesisSchedulerSource {
       .addAttributes(Attributes(ActorAttributes.IODispatcher))
 
   def checkpointRecordsSink(
-      settings: KinesisSchedulerCheckpointSettings
-  ): Sink[CommittableRecord, NotUsed] =
-    checkpointRecordsFlow(settings).to(Sink.ignore)
+      settings: KinesisSchedulerCheckpointSettings,
+      maxShardCount: Int = MAX_KINESIS_SHARDS,
+                           ): Sink[CommittableRecord, NotUsed] =
+    checkpointRecordsFlow(settings, maxShardCount).to(Sink.ignore)
 
   // http://docs.aws.amazon.com/streams/latest/dev/service-sizes-and-limits.html
   private val MAX_KINESIS_SHARDS = 500
